@@ -21,7 +21,35 @@ plots.plot_forces(variables)
 st.markdown("### 1.2 Targets")
 plots.plot_targets(targets)
 
+st.markdown("### 1.3 Correlation matrix")
+
 st.markdown("## 2. Data modelling")
-X_train, X_test, y_train, y_test = ml.train_test_split(variables, targets, modelling_options["test_size"])
-st.markdown(f"Train split size: `{X_train.shape[0]}` ({X_train.shape[0]/raw_data.shape[0]:.2f}%)")
-st.markdown(f"Test split size: `{X_test.shape[0]}` ({X_test.shape[0]/raw_data.shape[0]:.2f}%)")
+X_train, X_test, y_train, y_test = ml.train_test_split(
+    variables, targets, modelling_options["test_size"]
+)
+
+st.markdown(
+    f"Train split size: `{X_train.shape[0]}` ({X_train.shape[0] / raw_data.shape[0]:.2f}%)"
+)
+st.markdown(
+    f"Test split size: `{X_test.shape[0]}` ({X_test.shape[0] / raw_data.shape[0]:.2f}%)"
+)
+
+st.markdown("### 2.1 Test split evaluation")
+
+for model_name in modelling_options["models"]:
+    st.markdown(f"#### {model_name}")
+
+    model = ml.train_model(X_train, y_train, model_name)
+    predictions = ml.predict(X_test, y_test, model).pipe(ml.evaluation)
+    plots.plot_error_dist(predictions)
+
+# models = ml.train_models(X_train, y_train, modelling_options["models"])
+#
+# predictions = ml.predict(X_test, y_test, models).pipe(ml.evaluation)
+#
+# plots.plot_prediction_error(predictions)
+
+# error distribution
+# residuals plot (https://www.scikit-yb.org/en/latest/oneliners.html#regression)
+# prediction error

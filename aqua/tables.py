@@ -11,7 +11,7 @@ def mean_and_std_column(x):
 
 
 def describe_table(
-    data: pd.DataFrame, groupby: list = None, is_targets: bool = False
+    data: pd.DataFrame, groupby: list = None, description: str = None
 ) -> None:
     if groupby is None:
         groupby = ["variable"]
@@ -20,8 +20,15 @@ def describe_table(
     if describe.index.nlevels > 1:
         describe = describe.unstack()
         describe.columns = describe.columns.get_level_values(1)
-    description = targets_description if is_targets else variables_description
-    describe.insert(
-        0, "Description", describe.index.map(description),
-    )
+
+    if description:
+        describe.insert(
+            0,
+            "Description",
+            describe.index.map(
+                targets_description
+                if description == "targets"
+                else variables_description
+            ),
+        )
     st.table(describe)

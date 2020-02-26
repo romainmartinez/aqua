@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 
 random_seed = 42
 np.random.seed(random_seed)
@@ -34,5 +36,10 @@ normalization_strategies = ["None", "Weight", "Weight x Height", "IMC"]
 forces_order = ["ADD", "ABD", "ER", "IR", "EXT", "FLEX"]
 
 # models --------------------
-available_models = ["XGBoost", "Linear Regression", "Random Forest", "Histogram Gradient Boosting", "Gradient Tree Boosting"]
+models_functions = {
+    "Random Forest": RandomForestRegressor,
+    "Linear Regression": LinearRegression,
+}
+available_models = list(models_functions.keys())
+# available_models = ["XGBoost", "Linear Regression", "Random Forest", "Histogram Gradient Boosting", "Gradient Tree Boosting"]
 default_models = ["Random Forest", "Linear Regression"]

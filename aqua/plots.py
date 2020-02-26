@@ -9,13 +9,15 @@ empty_axis = alt.Axis(labels=False, ticks=False, domain=False, grid=False)
 xaxis = alt.Axis(labelFlush=False)
 
 colors = {"primary": "#f63366", "grey": "#4C566A", "dark": "#2E3440"}
+width = 280
+height = 75
 
 
 def plot_kde(
     value: str = "value", variable: str = "variable", **chart_kwargs
 ) -> alt.Chart:
     dist = (
-        alt.Chart(**chart_kwargs)
+        alt.Chart(height=height, width=width, **chart_kwargs)
         .transform_density(value, as_=[value, "density"], groupby=[variable])
         .mark_area(color=colors["grey"], opacity=0.6)
         .encode(
@@ -38,10 +40,10 @@ def plot_kde(
 def plot_anthropometry(variables: pd.DataFrame) -> None:
     anthropo = variables[["Height", "Weight"]].melt()
 
-    tables.describe_table(anthropo)
+    tables.describe_table(anthropo, description="variables")
 
     plots = (
-        plot_kde(height=100)
+        plot_kde()
         .facet(data=anthropo, column=alt.Column("variable", title=None))
         .resolve_scale(x="independent", y="independent")
     )
@@ -53,27 +55,31 @@ def plot_forces(variables: pd.DataFrame) -> None:
     forces = variables.drop(["Height", "Weight"], axis=1).melt()
     forces[["type", "variable"]] = forces["variable"].str.split(expand=True)
 
-    tables.describe_table(forces, groupby=['variable', 'type'])
-
-    row = alt.Row(
-        "variable",
-        title=None,
-        header=alt.Header(labelAngle=0, labelAlign="left"),
-        sort=forces_order,
-    )
+    tables.describe_table(forces, groupby=["variable", "type"], description="variables")
+    row_kwargs = dict(shorthand="variable", title=None, sort=forces_order)
     column = alt.Column("type", title=None)
     height = 75
 
     forces_plot = (
-        plot_kde(height=height)
-        .facet(data=forces.query("type != 'Imb.'"), row=row, column=column)
+        plot_kde()
+        .facet(
+            data=forces.query("type != 'Imb.'"),
+            row=alt.Row(
+                header=alt.Header(labelAngle=0, labelAlign="left"), **row_kwargs
+            ),
+            column=column,
+        )
         .resolve_scale(y="independent")
         .properties(bounds="flush")
     )
 
     imb_plot = (
-        plot_kde(height=height)
-        .facet(data=forces.query("type == 'Imb.'"), row=row, column=column)
+        plot_kde()
+        .facet(
+            data=forces.query("type == 'Imb.'"),
+            row=alt.Row(header=alt.Header(labelFontSize=0), **row_kwargs),
+            column=column,
+        )
         .resolve_scale(y="independent")
         .properties(bounds="flush")
     )
@@ -85,10 +91,10 @@ def plot_forces(variables: pd.DataFrame) -> None:
 def plot_targets(targets: pd.DataFrame) -> None:
     targets_melted = targets.melt()
 
-    tables.describe_table(targets_melted, is_targets=True)
+    tables.describe_table(targets_melted, description="targets")
 
     dist_plot = (
-        plot_kde(height=75)
+        plot_kde()
         .facet(
             data=targets_melted,
             row=alt.Row(
@@ -102,3 +108,39 @@ def plot_targets(targets: pd.DataFrame) -> None:
         .properties(bounds="flush")
     )
     st.altair_chart(dist_plot)
+
+
+def plot_error_dist(predictions: pd.DataFrame) -> None:
+    predictions_melted = predictions.melt(id_vars="target", value_vars=["MAE", "MAPE"])
+    tables.describe_table(predictions_melted, groupby=["target", "variable"])
+
+    row_kwargs = dict(shorthand="target", title=None, sort=forces_order)
+    column = alt.Column("variable", title=None)
+    height = 75
+
+    mae = (
+        plot_kde()
+        .facet(
+            data=predictions_melted.query("variable == 'MAE'"),
+            row=alt.Row(
+                header=alt.Header(labelAngle=0, labelAlign="left"), **row_kwargs
+            ),
+            column=column,
+        )
+        .resolve_scale(y="independent")
+        .properties(bounds="flush")
+    )
+
+    mape = (
+        plot_kde()
+        .facet(
+            data=predictions_melted.query("variable == 'MAPE'"),
+            row=alt.Row(header=alt.Header(labelFontSize=0), **row_kwargs),
+            column=column,
+        )
+        .resolve_scale(y="independent")
+        .properties(bounds="flush")
+    )
+
+    plots = (mae | mape).configure_facet(spacing=5)
+    st.altair_chart(plots)
