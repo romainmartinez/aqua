@@ -1,9 +1,10 @@
 from typing import Tuple
 
 import pandas as pd
+import shap
 from sklearn import model_selection
 
-from aqua._constant import available_targets, random_seed, models_functions
+from aqua._constant import available_targets, models_functions, random_seed
 
 
 def variables_targets_split(
@@ -21,8 +22,11 @@ def train_test_split(
 
 
 def train_model(X_train: pd.DataFrame, y_train: pd.DataFrame, model_name: str):
+    model_param = {"random": {"random_state": random_seed}, "regression": {}}
     return {
-        target: models_functions[model_name]().fit(X_train, y_train[target])
+        target: models_functions[model_name](
+            **model_param["regression" if "Regression" in model_name else "random"]
+        ).fit(X_train, y_train[target])
         for target in y_train
     }
 

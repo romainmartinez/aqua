@@ -31,4 +31,4 @@ def describe_table(
                 else variables_description
             ),
         )
-    st.table(describe)
+    st.dataframe(describe)

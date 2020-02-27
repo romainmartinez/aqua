@@ -3,7 +3,7 @@ import streamlit as st
 from aqua import ui, data, processing, ml, plots
 
 ui.make_title()
-processing_options, modelling_options, plots_options = ui.make_sidebar()
+processing_options, modelling_options = ui.make_sidebar()
 
 raw_data = data.load_raw_data().pipe(processing.process_force_data, processing_options)
 
@@ -22,6 +22,7 @@ st.markdown("### 1.2 Targets")
 plots.plot_targets(targets)
 
 st.markdown("### 1.3 Correlation matrix")
+plots.plot_correlation_matrix(variables, targets)
 
 st.markdown("## 2. Data modelling")
 X_train, X_test, y_train, y_test = ml.train_test_split(
@@ -37,19 +38,20 @@ st.markdown(
 
 st.markdown("### 2.1 Test split evaluation")
 
+predictions_list = []
 for model_name in modelling_options["models"]:
     st.markdown(f"#### {model_name}")
 
     model = ml.train_model(X_train, y_train, model_name)
     predictions = ml.predict(X_test, y_test, model).pipe(ml.evaluation)
     plots.plot_error_dist(predictions)
+    plots.plot_error_residuals(predictions)
 
-# models = ml.train_models(X_train, y_train, modelling_options["models"])
-#
-# predictions = ml.predict(X_test, y_test, models).pipe(ml.evaluation)
-#
-# plots.plot_prediction_error(predictions)
+    if "Regression" not in model_name:
+        # shap_values = ml.get_shap_values(variables, model, is_tree="Regression" not in model_name)
+        plots.plot_shap_values(variables, model)
 
-# error distribution
-# residuals plot (https://www.scikit-yb.org/en/latest/oneliners.html#regression)
-# prediction error
+    predictions_list.append(predictions.assign(model=model_name))
+
+st.markdown("### 2.2 Model comparison")
+plots.model_comparison(predictions_list)

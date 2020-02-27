@@ -1,8 +1,12 @@
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble._hist_gradient_boosting.gradient_boosting import (
+    HistGradientBoostingRegressor,
+)
+from sklearn.linear_model import LinearRegression, Lasso
+from xgboost import XGBRegressor
 
-random_seed = 42
+random_seed = 7
 np.random.seed(random_seed)
 
 # metrics -------------------
@@ -24,8 +28,6 @@ targets_description = {
     "EB max height": "Max. height during egg-beater",
     "EB min height": "Min. height during egg-beater",
     "EB mean height": "Mean height during egg-beater",
-    "EB sd height": "Height standard deviation during egg-beater",
-    "EB max-min height": "Max. - min. height during egg-beater",
     "BB": "Body-boost",
 }
 
@@ -38,8 +40,11 @@ forces_order = ["ADD", "ABD", "ER", "IR", "EXT", "FLEX"]
 # models --------------------
 models_functions = {
     "Random Forest": RandomForestRegressor,
+    "XGBoost": XGBRegressor,
     "Linear Regression": LinearRegression,
+    "Lasso Regression": Lasso,
+    "Gradient Tree Boosting": GradientBoostingRegressor,
+    "Histogram Gradient Boosting": HistGradientBoostingRegressor,
 }
 available_models = list(models_functions.keys())
-# available_models = ["XGBoost", "Linear Regression", "Random Forest", "Histogram Gradient Boosting", "Gradient Tree Boosting"]
 default_models = ["Random Forest", "Linear Regression"]

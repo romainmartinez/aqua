@@ -2,7 +2,13 @@ from typing import Tuple
 
 import streamlit as st
 
-from aqua._constant import available_targets, default_targets, normalization_strategies, available_models, default_models
+from aqua._constant import (
+    available_targets,
+    default_targets,
+    normalization_strategies,
+    available_models,
+    default_models,
+)
 
 
 def make_title() -> None:
@@ -14,7 +20,7 @@ def make_title() -> None:
     st.markdown("\n\n".join((title, authors, affiliation, link)))
 
 
-def make_sidebar() -> Tuple[dict, dict, dict]:
+def make_sidebar() -> Tuple[dict, dict]:
     st.sidebar.markdown("### Data processing options")
     processing_options = {
         "normalization": st.sidebar.selectbox(
@@ -37,13 +43,7 @@ def make_sidebar() -> Tuple[dict, dict, dict]:
         "test_size": st.sidebar.number_input(
             "Test split size (%)", min_value=0, max_value=100, value=20
         ),
-        "models": st.sidebar.multiselect("Models", available_models, default_models)
+        "models": st.sidebar.multiselect("Models", available_models, default_models),
     }
 
-    st.sidebar.markdown("---")
-
-    st.sidebar.markdown("### Plots options")
-    plots_options = {
-        "distribution": st.sidebar.selectbox("Distribution", ["KDE", "ECDF"])
-    }
-    return processing_options, modelling_options, plots_options
+    return processing_options, modelling_options
