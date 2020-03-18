@@ -46,4 +46,4 @@ def aggregate_force_data(
 
 
 def compute_force_imbalance(left: pd.DataFrame, right: pd.DataFrame) -> pd.DataFrame:
-    return (((left - right) / left).abs() * 100).add_prefix("Imb. ")
+    return (((left - right) / left).abs() * 100).add_prefix("Imb ")

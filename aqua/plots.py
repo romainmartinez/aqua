@@ -64,7 +64,7 @@ def plot_forces(variables: pd.DataFrame) -> None:
     forces_plot = (
         plot_kde()
         .facet(
-            data=forces.query("type != 'Imb.'"),
+            data=forces.query("type != 'Imb'"),
             row=alt.Row(
                 header=alt.Header(labelAngle=0, labelAlign="left"), **row_kwargs
             ),
@@ -77,7 +77,7 @@ def plot_forces(variables: pd.DataFrame) -> None:
     imb_plot = (
         plot_kde()
         .facet(
-            data=forces.query("type == 'Imb.'"),
+            data=forces.query("type == 'Imb'"),
             row=alt.Row(header=alt.Header(labelFontSize=0), **row_kwargs),
             column=column,
         )
